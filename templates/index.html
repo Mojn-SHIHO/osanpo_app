@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワンちゃんお散歩コース生成アプリ 🐾</title>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Background Map -->
+    <div id="map"></div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar: Input Controls -->
+        <div class="panel sidebar">
+            <div class="panel-header">
+                <i class="fa-solid fa-dog fa-2x" style="color: var(--primary);"></i>
+                <div>
+                    <h1>お散歩ナビ</h1>
+                    <p class="subtitle">Dog Walking Course Generator</p>
+                </div>
+            </div>
+            
+            <div class="panel-body">
+                <!-- 1. Start Location -->
+                <div class="form-group">
+                    <label for="startInput"><i class="fa-solid fa-location-dot"></i> 出発地・目的地</label>
+                    <div class="input-container">
+                        <i class="fa-solid fa-magnifying-glass input-icon"></i>
+                        <input type="text" id="startInput" class="form-input" value="新大平下駅" placeholder="住所、駅名、施設名などを入力">
+                    </div>
+                </div>
+
+                <!-- 2. Target Duration -->
+                <div class="form-group">
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <label><i class="fa-solid fa-clock"></i> 希望の散歩時間</label>
+                            <span class="slider-val"><span id="durationVal">30</span>分</span>
+                        </div>
+                        <input type="range" id="durationInput" class="form-slider" min="10" max="90" step="5" value="30">
+                    </div>
+                </div>
+
+                <!-- 2.5. Dog Size Selection -->
+                <div class="form-group">
+                    <label for="dogSizeInput"><i class="fa-solid fa-dog"></i> ワンちゃんのサイズ</label>
+                    <div class="input-container">
+                        <select id="dogSizeInput" class="form-input" style="appearance: auto; padding-right: 10px;">
+                            <option value="small">小型犬 (目安: 体重 5kg / 分速 60m)</option>
+                            <option value="medium" selected>中型犬 (目安: 体重 15kg / 分速 80m)</option>
+                            <option value="large">大型犬 (目安: 体重 30kg / 分速 100m)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2.7. Shade Mode Option -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <label for="shadeModeInput" style="margin-bottom: 0; cursor: pointer; font-weight: 500;">
+                            <i class="fa-solid fa-leaf" style="color: var(--primary);"></i> 日陰多め (緑地優先)
+                        </label>
+                        <input type="checkbox" id="shadeModeInput" style="width: 20px; height: 20px; cursor: pointer;">
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-left: 24px;">
+                        森林や樹木が多いエリアを経由地に優先選定します。
+                    </p>
+                </div>
+
+                <!-- 3. Dynamic Future Options Display (Optional in future) -->
+                <!-- <div class="form-group">
+                     <label><i class="fa-solid fa-leaf"></i> 将来的なオプション</label>
+                     <p style="font-size: 0.8rem; color: var(--text-muted);">※日陰多めモードや犬のサイズ選択などは今後追加予定です。</p>
+                </div> -->
+
+                <!-- Generate Button -->
+                <button id="generateBtn" class="btn-primary">
+                    <i class="fa-solid fa-route"></i> コースを自動生成する
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard: Results and Directions -->
+        <div class="panel dashboard" id="dashboardPanel">
+            <div class="panel-header">
+                <i class="fa-solid fa-chart-simple fa-2x" style="color: var(--primary);"></i>
+                <div>
+                    <h2>お散歩コース概要</h2>
+                    <p class="subtitle">Generated Course Info</p>
+                </div>
+            </div>
+            
+            <div class="panel-body">
+                <!-- Metrics -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">総歩行距離</div>
+                        <div class="stat-value"><span id="routeDistance">0.0</span> <span class="stat-unit">km</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">予想所要時間</div>
+                        <div class="stat-value"><span id="routeDuration">0</span> <span class="stat-unit">分</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">人間消費カロリー</div>
+                        <div class="stat-value"><span id="humanCalories">0</span> <span class="stat-unit">kcal</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">犬の消費カロリー</div>
+                        <div class="stat-value"><span id="dogCalories">0</span> <span class="stat-unit">kcal</span></div>
+                    </div>
+                </div>
+
+                <!-- Park Visit -->
+                <div class="form-group" style="background: rgba(255,255,255,0.5); padding: 12px; border-radius: 8px;">
+                    <label style="margin-bottom: 4px; font-size: 0.85rem;"><i class="fa-solid fa-tree" style="color: var(--primary);"></i> 経由する公園 (ランダム選定)</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="parkName" style="font-weight: 700; color: var(--text-dark);">公園を検索中...</span>
+                        <button id="rerollParkBtn" style="background: none; border: none; color: var(--secondary); cursor: pointer; font-size: 0.85rem; font-weight: bold; text-decoration: underline;">
+                            <i class="fa-solid fa-rotate"></i> 別の公園
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Collapsible Directions -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" id="directionsHeader">
+                        <span><i class="fa-solid fa-signs-post"></i> 道順案内 (ナビ)</span>
+                        <i class="fa-solid fa-chevron-down" id="directionsChevron"></i>
+                    </div>
+                    <div class="collapsible-content" id="directionsContent">
+                        <div id="stepsList">
+                            <!-- Dynamically populated steps -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="dog-loading">🦮</div>
+        <p style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">お散歩コースを組み立てています...</p>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Custom Application JS -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
