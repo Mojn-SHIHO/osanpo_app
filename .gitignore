@@ -1,0 +1,14 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables (contains sensitive secrets)
+.env
+
+# macOS system files
+.DS_Store
+
+# IDE settings
+.vscode/

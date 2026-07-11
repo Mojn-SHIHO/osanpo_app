@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>犬のお散歩コース生成Webアプリケーション - Pythonハンズオン学習計画</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f6f0;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --primary: #2d5a27;
+            --primary-light: #e8f0e6;
+            --secondary: #d97706;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --border: #e5e7eb;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary);
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            margin-top: 0;
+            font-size: 1.6rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-user {
+            background-color: #fef3c7;
+            color: var(--secondary);
+        }
+
+        .badge-ai {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .alert {
+            border-left: 4px solid var(--secondary);
+            background-color: #fffbeb;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            color: #b45309;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        code {
+            font-family: monospace;
+            background-color: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #eb5757;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐾 お散歩コース生成アプリ (Python)</h1>
+            <p class="subtitle">Python × Flask ハンズオン学習計画書</p>
+        </header>
+
+        <div class="card">
+            <h2>1. 学習ステップの概要</h2>
+            <p>本計画では、バックエンドとして <strong>Python (Flask)</strong> を使用し、各種外部API（OpenStreetMap、Nominatim、Overpass、OSRM）との通信や、お散歩コースをループにするための幾何計算といった<strong>コアロジックをPythonで実装</strong>します。</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">ステップ</th>
+                        <th style="width: 35%;">学習テーマ</th>
+                        <th style="width: 25%;">あなたがPythonで実装するコア</th>
+                        <th style="width: 25%;">AIが提供するコード</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Step 1</strong></td>
+                        <td>Flask起動と地図の初期表示</td>
+                        <td><span class="badge badge-user">要実装</span> テンプレートを返すFlaskルートハンドラ</td>
+                        <td><span class="badge badge-ai">提供</span> app.py基本構造、HTML/CSS、Leaflet初期表示JS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Step 2</strong></td>
+                        <td>住所検索API (ジオコーディング)</td>
+                        <td><span class="badge badge-user">要実装</span> Nominatim API呼び出しと緯度経度の抽出</td>
+                        <td><span class="badge badge-ai">提供</span> 検索UI、JavaScriptからのfetch通信処理</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Step 3</strong></td>
+                        <td>半径400m以内の公園検索API</td>
+                        <td><span class="badge badge-user">要実装</span> Overpass APIに対するクエリとランダム選定</td>
+                        <td><span class="badge badge-ai">提供</span> 検索半径自動拡張ロジックのラッパー</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Step 4</strong></td>
+                        <td>ループ用経由地の幾何計算</td>
+                        <td><span class="badge badge-user">要実装</span> 楕円の性質を用いた第3経由地の座標算出</td>
+                        <td><span class="badge badge-ai">提供</span> 緯度経度⇔メートル変換などの数学ユーティリティ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Step 5</strong></td>
+                        <td>OSRM徒歩ルート取得と描画</td>
+                        <td><span class="badge badge-user">要実装</span> OSRM APIとの通信および経路座標(GeoJSON)の返却</td>
+                        <td><span class="badge badge-ai">提供</span> 地図上へのルート描画、消費カロリーや道案内の表示</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>2. 進め方のルール</h2>
+            <div class="alert">
+                <div class="alert-title">🐍 Pythonでの開発手順</div>
+                <p>各ステップに進むと、AIが<code># TODO</code>コメントの入ったPythonコード（Flaskのハンドラや関数テンプレート）を作成します。あなたはその部分をPythonで実装します。動作確認の際は、ローカルでFlaskサーバーを立ち上げてブラウザからテストします。</p>
+            </div>
+            <ol>
+                <li>AIがステップごとの実装テンプレートコード（主に <code>app.py</code> 内）を提示します。</li>
+                <li>テンプレートに沿って、必要なPythonコードを記述します。</li>
+                <li>Flaskサーバーを起動し、ブラウザで動作確認をしながらステップを完了させます。</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>3. 将来的な拡張要素（将来のロードマップ）</h2>
+            <ul>
+                <li><strong>日陰多めモード（周辺の緑地評価）</strong>：Overpass APIを使用して周囲の森林・並木などを検索し、より緑が多く涼しいルートを動的に優先選択する処理。</li>
+                <li><strong>犬のサイズ（小型・中型・大型）選択機能</strong>：サイズに合わせた歩行速度や消費カロリーの自動調整機能。</li>
+                <li><strong>GPXエクスポート</strong>：生成したお散歩コースをGPSログ形式で書き出し、スマホの地図アプリに転送できる機能。</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Antigravity-IDE - osanpoApp-66 Project</p>
+        </div>
+    </div>
+</body>
+</html>
