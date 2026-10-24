@@ -6,7 +6,7 @@ let waypointMarker = null; // ループを作るための第3経由地のピン�
 let routePolyline = null; // 地図上に描画されるルートの「線（ポリライン）」を格納する変数
 
 // Selected Coordinates & Data
-let startCoords = { lat: 36.3534, lng: 139.7118 }; // Default: Shin-Ohairashita Station
+let startCoords = { lat: 36.5590, lng: 139.8980 }; // Default: Utsunomiya Station
 let selectedPark = null;
 let thirdWaypoint = null;
 
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //    アトリビューション(著作権表記): '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 function initMap() {
     // 💡 ここにあなたのコードを記述してください (Step 1)
-    // L.map関数で初期化し、初期座標(新大平下駅)とズームレベル(15)を設定
+    // L.map関数で初期化し、初期座標(宇都宮駅)とズームレベル(15)を設定
     map = L.map("map").setView([startCoords.lat, startCoords.lng], 15);
     // OpenStreetMapのタイルレイヤーを作成し、地図に追加
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
